@@ -126,4 +126,15 @@ export class CloudinaryService {
   static getUrl(publicId: string): string {
     return cloudinary.url(publicId, { secure: true });
   }
+
+  /**
+   * Get a download URL with proper download flags
+   */
+  static getDownloadUrl(publicId: string, filename: string): string {
+    return cloudinary.url(publicId, {
+      secure: true,
+      flags: 'attachment',
+      resource_type: 'image',
+    });
+  }
 }

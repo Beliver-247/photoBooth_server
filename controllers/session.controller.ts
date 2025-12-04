@@ -111,16 +111,9 @@ export class SessionController {
         return;
       }
 
-      // Generate the photo reel using Cloudinary transformations
-      let reelData;
-      try {
-        // Try Cloudinary transformations first
-        reelData = await CloudinaryService.createPhotoReel(session.photoPublicIds);
-      } catch (error) {
-        console.warn('Cloudinary transformation failed, falling back to Sharp:', error);
-        // Fallback to Sharp if Cloudinary transformations fail
-        reelData = await ImageCompositionService.createPhotoReelWithSharp(session.photoPublicIds);
-      }
+      // Generate the photo reel using Sharp to create actual composite image
+      console.log('Creating photo reel with Sharp for session:', sessionId);
+      const reelData = await ImageCompositionService.createPhotoReelWithSharp(session.photoPublicIds);
 
       // Generate a unique slug
       const slug = nanoid(8);
@@ -220,6 +213,8 @@ export class SessionController {
       }
 
       const imageUrl = CloudinaryService.getUrl(session.finalReelPublicId);
+      // Get a proper download URL with download flag
+      const downloadImageUrl = CloudinaryService.getDownloadUrl(session.finalReelPublicId, `photobooth-${slug}`);
 
       const html = `
 <!DOCTYPE html>
@@ -332,7 +327,7 @@ export class SessionController {
       <img src="${imageUrl}" alt="Your photobooth photos" />
     </div>
     <div class="actions">
-      <a href="${imageUrl}" download="photobooth-${slug}.jpg" class="download-btn">
+      <a href="${downloadImageUrl}" class="download-btn">
         Download Photos
       </a>
     </div>
